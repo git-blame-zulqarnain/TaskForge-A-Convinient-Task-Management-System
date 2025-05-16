@@ -1,0 +1,10 @@
+{
+    "title": "Demo Task",
+    "description": "Demo task for testing purposes",
+    "status": "Pending",
+    "dueDate": "2025-12-31T00:00:00.000Z",
+    "_id": "68273cf8d16a9d2000739a4b",
+    "createdAt": "2025-05-16T13:26:16.248Z",
+    "updatedAt": "2025-05-16T13:26:16.248Z",
+    "__v": 0
+}
