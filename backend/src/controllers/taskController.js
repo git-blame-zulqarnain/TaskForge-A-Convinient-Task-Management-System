@@ -15,7 +15,8 @@ const createTask=async(req,res,next)=>{
                 title,
                 description,
                 status,
-                dueDate
+                dueDate,
+                user:req.user._id
             });
             const createdTask=await task.save();
             res.status(201).json(createdTask);
@@ -26,28 +27,51 @@ const createTask=async(req,res,next)=>{
     }
 };
 
-const getTasks=async(req,res,next)=>{
-    try{
-        const tasks=await Task.find({});
-        res.json(tasks);
+const getTasks = async (req, res, next) => {
+  try {
+    const queryConditions = { user: req.user._id };
+
+    if (req.query.search) {
+      const searchQuery = req.query.search.trim();
+      queryConditions.$or = [ 
+        { title: { $regex: searchQuery, $options: 'i' } },
+        { description: { $regex: searchQuery, $options: 'i' } },
+      ];
     }
-    catch(error)
-    {
-        next(error);
+
+    if (req.query.status) {
+      const statusQuery = req.query.status.trim();
+      if (['Pending', 'In Progress', 'Completed'].includes(statusQuery)) 
+        {
+        queryConditions.status = statusQuery;
+      } 
+      else {
+        console.warn(`Invalid status filter received: ${statusQuery}`);
+      }
     }
+
+    const tasks = await Task.find(queryConditions).sort({ createdAt: -1 }); 
+
+    res.json(tasks);
+  } catch (error) {
+    next(error);
+  }
 };
+
 const getTaskById=async(req,res,next)=>{
     try{
         const task=await Task.findById(req.params.id);
-        if(task)
-        {
-            res.json(task);
-        }
-        else
+        if(!task)
         {
             res.status(404);
-            throw new Error('Task not found');
+            throw new Error('Error 404: Task not found');
         }
+        if(task.user.toString()!==req.user._id.toString())
+        {
+            res.status(401);
+            throw new Error('Error 401: Unauthorized access');
+        }
+        res.json(task);
     }
     catch(error)
     {
@@ -64,21 +88,23 @@ const updateTask=async(req,res,next)=>{
     try
     {
         const task=await Task.findById(req.params.id);
-        if(task)
-        {
-            task.title=title||task.title;
-            task.description=description!==undefined?description:task.description;
-            task.dueDate=dueDate||task.dueDate;
-            task.status=status||task.status;
-
-            const updatedTask=await task.save();
-            res.json(updatedTask);
-        }
-        else
+        if(!task)
         {
             res.status(404);
-            throw new Error('Task not found');
+            throw new Error('Error 404: Task not found');
         }
+        if(task.user.toString()!==req.user._id.toString())
+        {
+           res.status(401);
+              throw new Error('Error 401: Unauthorized access');
+        }
+        task.title=title||task.title;
+        task.description=description!==undefined?description:task.description;
+        task.dueDate=dueDate||task.dueDate;
+        task.status=status||task.status;
+
+        const updatedTask=await task.save();
+        res.json(updatedTask);
     }
     catch(error)
     {
@@ -92,19 +118,42 @@ const deleteTask=async(req,res,next)=>
     {
         const task=await Task.findById(req.params.id);
 
-        if(task)
-        {
-            await task.deleteOne();
-            res.json({message: 'Task removed'});
-        }
-        else
+        if(!task)
         {
             res.status(404);
-            throw new Error('Task not found');
+            throw new Error('Error 404: Task not found');
         }
+        if(task.user.toString()!==req.user._id.toString())
+        {
+            res.status(401);
+            throw new Error('Error 401: Unauthorized access');
+        }
+
+        await task.deleteOne();
+        res.json({message: 'Task removed'});
     }
     catch(error)
     {
+        next(error);
+    }
+};
+const getTaskStats = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+
+        const totalTasks = await Task.countDocuments({ user: userId });
+
+        const completedTasks = await Task.countDocuments({
+            user: userId,
+            status: 'Finished'
+        });
+
+        res.json({
+            totalTasks,
+            completedTasks
+        });
+    } catch (error) {
+        console.error('Error fetching task stats:', error);
         next(error);
     }
 };
@@ -114,5 +163,6 @@ module.exports={
     getTasks,
     getTaskById,
     updateTask,
-    deleteTask
+    deleteTask,
+    getTaskStats
 };

@@ -1,18 +1,27 @@
-const express=require('express');
-const router=express.Router();
+const express = require('express');
+const router = express.Router();
 
-const{
+const {
     createTask,
     getTasks,
     getTaskById,
     updateTask,
-    deleteTask
-}=require('../controllers/taskController');
+    deleteTask,
+    getTaskStats
+} = require('../controllers/taskController');
 
-const {validateTask}=require('../middleware/validationMiddleware');
-router.post('/',validateTask,createTask);
-router.get('/',getTasks);
-router.get('/:id',getTaskById);
-router.put('/:id',validateTask,updateTask);
-router.delete('/:id',deleteTask);
-module.exports=router;
+const { validateTask } = require('../middleware/validationMiddleware');
+const { protect } = require('../middleware/authMiddleware');
+
+router.route('/')
+    .post(protect, validateTask, createTask)
+    .get(protect, getTasks);
+
+router.route('/:id')
+    .get(protect, getTaskById)
+    .put(protect, validateTask, updateTask)
+    .delete(protect, deleteTask);
+
+router.get('/summary/stats', protect, getTaskStats);
+
+module.exports = router;
