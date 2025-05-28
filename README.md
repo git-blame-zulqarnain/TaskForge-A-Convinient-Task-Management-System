@@ -228,13 +228,5 @@ Open your browser to the frontend URL (e.g., `http://localhost:5173`).
     *   `PUT /api/tasks/:id` - Update task
     *   `DELETE /api/tasks/:id` - Delete task
     *   `GET /api/tasks/summary/stats` - Get task progress statistics
-
-## Next Steps / Future Enhancements
-*   More granular UI error handling (e.g., toast notifications).
-*   Deployment to a cloud platform.
-*   Advanced filtering or sorting options.
-*   Unit and integration tests.
-*   UI/UX refinements.
-
 ---
 This project was developed by Muhammad Zuqlarnain.
