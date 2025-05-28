@@ -25,7 +25,7 @@ The backend is built using Node.js and Express.js, with MongoDB as the database.
 
 ### Tech Stack
 
-*   **Backend:** Node.js
+*   **Backend:** Node.js,Express.js
 *   **Database:** MongoDB (with Mongoose ODM)
 *   **Development Utilities:** Nodemon
 *   **Validation:** express-validator
