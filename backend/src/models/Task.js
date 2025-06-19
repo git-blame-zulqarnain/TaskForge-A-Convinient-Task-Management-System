@@ -26,6 +26,15 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  owner:{
+    type:mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref:'User'
+  },
+  sharedWith: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'User'
+  }],
 }, {
   timestamps: true,
 });
