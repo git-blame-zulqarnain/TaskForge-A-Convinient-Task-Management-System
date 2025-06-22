@@ -5,7 +5,7 @@ import { getAllTasks, deleteTask as deleteTaskService } from '../services/taskSe
 
 
 const TaskList = ({ onEditTask, key: refreshKey, onTaskSavedForProgressRefresh }) => {
-  const [tasks, setTasks] = useState([]); // This is the filtered list
+  const [tasks, setTasks] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({ search: '', status: '' });

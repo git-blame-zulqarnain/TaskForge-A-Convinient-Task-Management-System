@@ -4,9 +4,13 @@ import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import { useAuth } from './context/AuthContext';
-import { getTasksSummaryStats } from './services/taskService'; 
-import ProgressBar from './components/ProgressBar'; 
+import { useAuth } from './context/AuthContext'; 
+import { getTasksSummaryStats } from './services/taskService';
+import ProgressBar from './components/ProgressBar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import './App.css';
 
 const TaskDashboard = ({
@@ -15,8 +19,9 @@ const TaskDashboard = ({
   onTaskSaved,
   taskToEdit,
   onCancelEdit,
-  overallProgress, 
-  loadingProgress
+  overallProgress,
+  loadingProgress,
+  
 }) => (
   <div className="dashboard-layout">
     <section
@@ -54,22 +59,16 @@ const TaskDashboard = ({
 function App() {
   const [refreshTaskListSignal, setRefreshTaskListSignal] = useState(0);
   const [taskToEdit, setTaskToEdit] = useState(null);
-  const { authState, logout } = useAuth();
 
-  const [overallProgress, setOverallProgress] = useState({
-    totalTasks: 0,
-    completedTasks: 0,
-    percentage: 0,
-  });
+  const { authState, logout, getSocketInstance } = useAuth();
+
+  const [overallProgress, setOverallProgress] = useState();
   const [loadingProgress, setLoadingProgress] = useState(true);
-  const [progressError, setProgressError] = useState(null); 
+  const [progressError, setProgressError] = useState(null);
 
-  const fetchOverallProgress = useCallback(async () => 
-    {
+  const fetchOverallProgress = useCallback(async () => {
     if (!authState.isAuthenticated) return;
-
-    try 
-    {
+    try {
       setLoadingProgress(true);
       setProgressError(null);
       const stats = await getTasksSummaryStats();
@@ -79,69 +78,87 @@ function App() {
         completedTasks: stats.completedTasks,
         percentage: percentage,
       });
-    } 
-    catch (err) 
-    {
+    } catch (err) {
       console.error("Error fetching overall progress in App:", err);
       setProgressError('Could not load progress.');
-    } 
-    finally 
-    {
+    } finally {
       setLoadingProgress(false);
     }
   }, [authState.isAuthenticated]);
 
-  useEffect(() => 
-    {
+  useEffect(() => {
     if (authState.isAuthenticated) {
       fetchOverallProgress();
-    } 
-    else 
-    {
+    } else {
       setOverallProgress({ totalTasks: 0, completedTasks: 0, percentage: 0 });
       setLoadingProgress(false);
     }
   }, [authState.isAuthenticated, fetchOverallProgress]);
 
-
-  const handleTaskCreatedOrUpdated = () => {
-    setRefreshTaskListSignal(prev => prev + 1); 
-    fetchOverallProgress(); 
+  const handleTaskCreatedOrUpdated = () => { 
+    console.log("App.jsx: Task created, updated, or deleted. Refreshing list and progress.");
+    setRefreshTaskListSignal(prev => prev + 1);
+    fetchOverallProgress();
     setTaskToEdit(null);
   };
 
-  const handleEditTask = (task) => {
-    setTaskToEdit(task);
-    const formSection = document.getElementById('task-form-section');
-    if (formSection) {
-      formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  useEffect(() => {
+    if (authState.isAuthenticated && authState.user?._id) {
+      const socket = getSocketInstance(); 
+
+      if (socket) {
+        console.log("App.jsx: Setting up socket event listeners for notifications (socket ID:", socket.id, ")");
+
+        const handleNewTaskShared = (data) => {
+          console.log('App.jsx - Socket event received: newTaskShared', data);
+          toast.info(data.message || `Task "${data.taskTitle || 'A task'}" has been shared with you!`);
+          handleTaskCreatedOrUpdated();
+        };
+
+        const handleTaskStatusUpdated = (data) => {
+          console.log('App.jsx - Socket event received: taskStatusUpdated', data);
+          toast.success(data.message || `Task "${data.taskTitle}" status updated.`);
+          handleTaskCreatedOrUpdated();
+        };
+
+        socket.on('newTaskShared', handleNewTaskShared);
+        socket.on('taskStatusUpdated', handleTaskStatusUpdated);
+
+        return () => {
+          console.log("App.jsx: Cleaning up socket event listeners.");
+          socket.off('newTaskShared', handleNewTaskShared);
+          socket.off('taskStatusUpdated', handleTaskStatusUpdated);
+        };
+      } else {
+        console.log("App.jsx: Socket instance not available yet for setting listeners.");
+      }
     }
-  };
-  const handleCancelEdit = () => {
-    setTaskToEdit(null);
-  };
-  const handleLogout = () => {
-    logout();
-  };
+
+  }, [authState.isAuthenticated, authState.user?._id, getSocketInstance, handleTaskCreatedOrUpdated]);
+
+
+  const handleEditTask = (task) => {};
+  const handleCancelEdit = () => {};
+  const handleLogout = () => {};
 
   return (
     <Router>
       <div className="app-container">
-        <header className="app-header">
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <h1 className="app-header-title">TaskForge</h1>
-          </Link>
-          {authState.isAuthenticated && (
-            <button onClick={handleLogout} className="button button-secondary logout-button">
-              Logout
-            </button>
-          )}
-        </header>
-
+        <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+        />
+        <header className="app-header"></header>
         <main className="app-main-content-area">
           <Routes>
-            <Route path="/login" element={!authState.isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />} />
-            <Route path="/register" element={!authState.isAuthenticated ? <RegisterPage /> : <Navigate to="/" replace />} />
             <Route
               path="/"
               element={
@@ -149,24 +166,20 @@ function App() {
                   <TaskDashboard
                     refreshSignal={refreshTaskListSignal}
                     onEditTask={handleEditTask}
-                    onTaskSaved={handleTaskCreatedOrUpdated}
+                    onTaskSaved={handleTaskCreatedOrUpdated} 
                     taskToEdit={taskToEdit}
                     onCancelEdit={handleCancelEdit}
-                    overallProgress={overallProgress} 
-                    loadingProgress={loadingProgress} 
+                    overallProgress={overallProgress}
+                    loadingProgress={loadingProgress}
                   />
                 ) : (
                   <Navigate to="/login" replace />
                 )
               }
             />
-            <Route path="*" element={<Navigate to={authState.isAuthenticated ? "/" : "/login"} replace />} />
           </Routes>
         </main>
-
-        <footer className="app-footer">
-          <p>© {new Date().getFullYear()} Muhammad Zuqlarnain - TaskForge</p>
-        </footer>
+        <footer className="app-footer"></footer>
       </div>
     </Router>
   );
