@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const connectDB = require('./src/config/db');
 const taskRoutes = require('./src/routes/taskRoutes');
 const userRoutes = require('./src/routes/userRoutes'); 
+const notificationRoutes = require('./src/routes/notificationRoutes');
 const { notFound, errorHandler } = require('./src/middleware/errorHandler');
 
 dotenv.config();
@@ -51,6 +52,8 @@ app.get('/', (req, res) => {
 });
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes); 
+app.use('/api/notifications', notificationRoutes);
+
 
 app.use(notFound);
 app.use(errorHandler);
