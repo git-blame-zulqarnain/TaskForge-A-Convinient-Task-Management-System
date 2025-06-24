@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { loginUserService } from '../services/authService'; 
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');         
+  const [password, setPassword] = useState('');   
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useAuth(); // Get login function from context
+
+  const { login } = useAuth(); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,12 +16,21 @@ const LoginPage = () => {
     setIsLoading(true);
     setError(null);
 
+
+    const credentials = {
+      email: email.trim(),
+      password: password.trim()
+    };
+
+    console.log("LOGIN_PAGE: Submitting credentials:", credentials); 
+
     try {
-      const userData = await loginUserService({ email, password });
-      login(userData); 
+
+      await login(credentials);
       navigate('/'); 
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
+      console.error("LOGIN_PAGE: Login error caught in component:", err);
     } finally {
       setIsLoading(false);
     }
@@ -39,8 +47,8 @@ const LoginPage = () => {
             type="email"
             id="email"
             className="form-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
             required
             disabled={isLoading}
             placeholder="you@example.com"
@@ -52,8 +60,8 @@ const LoginPage = () => {
             type="password"
             id="password"
             className="form-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
             required
             disabled={isLoading}
             placeholder="••••••••"
