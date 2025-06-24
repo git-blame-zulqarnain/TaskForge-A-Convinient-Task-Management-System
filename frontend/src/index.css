@@ -19,6 +19,79 @@ body {
   flex-direction: column;
 }
 
+:root {
+  --background-color: #f4f7f6; 
+  --text-color: #333333;      
+  --card-background-color: rgba(255, 255, 255, 0.9); 
+  --card-background-solid: #ffffff; 
+  --card-border-color: rgba(200, 200, 200, 0.3);
+  --primary-text-color: #2c3e50;   
+  --secondary-text-color: #555555; 
+  --muted-text-color: #777777;
+  --accent-color: #3498db;         
+  --accent-color-hover: #2980b9;
+  --button-secondary-bg: #95a5a6;
+  --button-secondary-hover: #7f8c8d;
+  --input-bg-color: rgba(240, 240, 240, 0.8);
+  --input-border-color: #cccccc;
+  --input-text-color: #333333;
+  --input-focus-border-color: #60a5fa; 
+  --glass-card-bg: rgba(255, 255, 255, 0.8); 
+  --glass-card-border: rgba(200, 200, 200, 0.4);
+  --glass-card-text: #333;
+  --glass-card-header-text: #2c3e50;
+
+
+  --dark-glass-card-bg: rgba(31, 41, 55, 0.75); 
+  --dark-glass-card-text: #d1d5db; 
+  --dark-glass-card-label-text: #9ca3af; 
+  --dark-input-bg: rgba(55, 65, 81, 0.7);
+  --dark-input-border: rgba(107, 114, 128, 0.5);
+  --dark-input-text: #f3f4f6;
+
+}
+
+html.dark { /* Or body.dark */
+  --background-color: #111827; 
+  --text-color: #d1d5db;      
+  --card-background-color: rgba(31, 41, 55, 0.85); 
+  --card-background-solid: #1f2937; 
+  --card-border-color: rgba(75, 85, 99, 0.5);
+  --primary-text-color: #e5e7eb;
+  --secondary-text-color: #9ca3af;
+  --muted-text-color: #6b7280;
+  --accent-color: #60a5fa; 
+  --accent-color-hover: #3b82f6;
+  --button-secondary-bg: #4b5563;
+  --button-secondary-hover: #374151;
+  --input-bg-color: var(--dark-input-bg);
+  --input-border-color: var(--dark-input-border);
+  --input-text-color: var(--dark-input-text);
+  --input-focus-border-color: #3b82f6;
+  --glass-card-bg: var(--dark-glass-card-bg);
+  --glass-card-border: rgba(55, 65, 81, 0.7);
+  --glass-card-text: var(--dark-glass-card-text);
+  --glass-card-header-text: #e5e7eb; 
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color); 
+  color: var(--text-color);                 
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+* {
+    box-sizing: border-box;
+}
+
+
 #root {
   display: flex;
   flex-direction: column;

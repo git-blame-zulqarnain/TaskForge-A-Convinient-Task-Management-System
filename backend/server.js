@@ -10,6 +10,7 @@ const taskRoutes = require('./src/routes/taskRoutes');
 const userRoutes = require('./src/routes/userRoutes'); 
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const { notFound, errorHandler } = require('./src/middleware/errorHandler');
+const analyticsRoutes = require('./src/routes/analyticsRoutes');
 
 dotenv.config();
 connectDB();
@@ -53,6 +54,7 @@ app.get('/', (req, res) => {
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 
 app.use(notFound);
