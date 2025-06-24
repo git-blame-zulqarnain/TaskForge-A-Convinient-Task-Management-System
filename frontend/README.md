@@ -1,6 +1,6 @@
 # TaskForge - Full-Stack Task Management System
 
-TaskForge is a feature-rich, full-stack task management application designed to help users and teams organize, track, collaborate on, and analyze their tasks efficiently. It features a Node.js/Express.js backend, a React.js frontend, real-time notifications via Socket.IO, and user authentication.ss
+TaskForge is a feature-rich, full-stack task management application designed to help users and teams organize, track, collaborate on, and analyze their tasks efficiently. It features a Node.js/Express.js backend, a React.js frontend, real-time notifications via Socket.IO, and user authentication.
 
 ## Live Demo & Links
 
