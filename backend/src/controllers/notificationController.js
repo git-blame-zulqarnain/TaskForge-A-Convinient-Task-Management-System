@@ -38,8 +38,24 @@ const markNotificationsAsRead = asyncHandler(async (req, res) => {
     }
 });
 
+const markAllNotificationsAsRead = asyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+    console.log(`NOTIFICATION_CONTROLLER: User ${userId} attempting to mark ALL notifications as read.`);
+    try {
+        const result = await Notification.updateMany(
+            { user: userId, isRead: false }, 
+            { $set: { isRead: true } }      
+        );
+        console.log(`NOTIFICATION_CONTROLLER: Mark all result for user ${userId}:`, result);
+        res.json({ message: `${result.modifiedCount} notifications were marked as read.` });
+    } catch (error) {
+        console.error("Error marking all notifications as read for user:", userId, error);
+        next(error); 
+    }
+});
 
 module.exports = {
     getNotifications,
-    markNotificationsAsRead
+    markNotificationsAsRead,
+    markAllNotificationsAsRead
 };
