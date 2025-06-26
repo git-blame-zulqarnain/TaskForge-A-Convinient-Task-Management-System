@@ -4,31 +4,10 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "distDir": "frontend/dist"
-      }
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
+      "config": { "distDir": "frontend/dist" }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "env": {
-    "MONGO_URI": "@mongo_uri_secret",
-    "JWT_SECRET": "@jwt_secret_value",   
-    "NODE_ENV": "production"           
-  }
+    { "src": "/(.*)", "dest": "frontend/dist/index.html" }
+  ]
 }
